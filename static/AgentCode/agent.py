@@ -382,6 +382,31 @@ def build_session_tools(context, stack):
 
 ''' START OF ACTIVITY 2'''
 
+# Activity 2: Terms of Service tool (AnyCompany-ToS-Tool gateway, SigV4/IAM
+# inbound auth). Registered as a tool group; the connection is opened per
+# request in build_session_tools, gated by AVP when Activity 5 is enabled.
+ACTIVITY2_GATEWAY_URL = "https://anycompany-tos-tool-ei3jomfhfp.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp"
+
+register_tool_group(
+    name="activity2_tos",
+    connect=lambda: MCPClient(
+        lambda: create_streamable_http_transport_sigv4(
+            mcp_url=ACTIVITY2_GATEWAY_URL,
+            service_name="bedrock-agentcore",
+            region="us-east-1",
+        )
+    ),
+    resource_ids=["ToS-Lambda"],
+)
+logger.info("Activity 2 Terms of Service tool registered")
+
+system_prompt = system_prompt + """
+
+- **Terms of Service and Policies retrieval**:
+   - Retrieve terms and conditions about refund, delivery, and payment using the corresponding tool
+   - Do not return information about refund, delivery, and payment other than from this tool
+
+"""
 '''END OF ACTIVITY 2'''
 
 '''START OF ACTIVITY 3a'''
